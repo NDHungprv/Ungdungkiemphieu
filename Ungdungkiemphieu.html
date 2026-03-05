@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html>
+
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JSFiddle zysh2d9p</title>
+
+  <style>
+    
+  </style>
+
+  
+</head>
+<body>
+  <!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Công cụ kiểm phiếu</title>
+    <style>
+      * { box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+      body { background: #f0f2f5; display: flex; justify-content: center; padding: 20px; margin: 0; }
+      .container { max-width: 1300px; width: 100%; background: white; border-radius: 28px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); padding: 32px 40px; }
+      h1 { font-size: 2rem; font-weight: 600; color: #1e293b; border-left: 6px solid #2563eb; padding-left: 20px; margin-top: 0; }
+      .sub { color: #475569; margin-bottom: 2rem; padding-left: 26px; }
+
+      .step { background: #f8fafc; border-radius: 20px; padding: 24px; margin-bottom: 28px; border: 1px solid #e2e8f0; }
+      .step h2 { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; color: #0f172a; margin-top: 0; margin-bottom: 20px; }
+      .step h2 span { background: #2563eb; color: white; width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 600; }
+
+      .form-row { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end; }
+      .input-group { flex: 1 1 200px; }
+      .input-group label { font-weight: 500; color: #334155; margin-bottom: 6px; display: block; font-size: 1rem; }
+      .input-group input { width: 100%; padding: 14px 18px; border: 1px solid #cbd5e1; border-radius: 16px; font-size: 1.1rem; transition: 0.2s; }
+      .input-group input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.2); }
+
+      button { background: #2563eb; color: white; border: none; padding: 14px 30px; border-radius: 40px; font-size: 1.1rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; border: 1px solid transparent; }
+      button:hover { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(37,99,235,0.3); }
+      button.secondary { background: white; color: #1e293b; border-color: #cbd5e1; }
+      button.secondary:hover { background: #f1f5f9; transform: none; box-shadow: none; }
+
+      .mode-switch { display: flex; gap: 12px; margin-bottom: 25px; flex-wrap: wrap; }
+      .mode-btn { background: #e2e8f0; color: #334155; border: none; padding: 14px 24px; border-radius: 40px; font-weight: 600; font-size: 1.1rem; cursor: pointer; flex: 1 1 0; min-width: 140px; text-align: center; transition: 0.2s; }
+      .mode-btn.active { background: #2563eb; color: white; box-shadow: 0 4px 10px rgba(37,99,235,0.3); }
+      .mode-btn.disabled { opacity: 0.5; cursor: not-allowed; background: #cbd5e1; pointer-events: none; }
+
+      .warning-badge { background: #fef9c3; color: #854d0e; padding: 6px 14px; border-radius: 40px; font-size: 0.95rem; font-weight: 500; margin-left: 10px; }
+
+      .name-table { margin: 20px 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+      .name-item { display: flex; align-items: center; gap: 10px; }
+      .name-item .index { background: #e2e8f0; width: 36px; height: 36px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 600; color: #334155; font-size: 1.1rem; }
+      .name-item input { flex: 1; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 14px; font-size: 1.05rem; }
+
+      /* Auto mode */
+      .combo-row { display: flex; gap: 15px; align-items: center; margin-bottom: 12px; background: white; padding: 15px 20px; border-radius: 20px; border: 1px solid #e2e8f0; }
+      .combo-row .gach-display { flex: 3; font-weight: 500; color: #0f172a; font-size: 1.1rem; }
+      .combo-row .sophieu-input { flex: 1; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 14px; font-size: 1.1rem; min-width: 120px; }
+
+      /* Custom mode */
+      .custom-row { display: flex; gap: 15px; align-items: center; margin-bottom: 12px; background: white; padding: 15px 20px; border-radius: 20px; border: 1px solid #e2e8f0; transition: 0.1s; }
+      .custom-row .combo-input { flex: 3; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 14px; font-size: 1.1rem; }
+      .custom-row .sophieu-input { flex: 1; padding: 12px 16px; border: 1px solid #cbd5e1; border-radius: 14px; font-size: 1.1rem; min-width: 120px; }
+      .custom-row.invalid { background-color: #fee2e2; border-color: #f87171; }
+      .custom-row.invalid input { background-color: #fee2e2; }
+
+      /* Manual mode */
+      .votes-header, .vote-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; background: white; padding: 12px 18px; border-radius: 40px; border: 1px solid #e2e8f0; font-size: 1.05rem; }
+      .votes-header { background: #e6f0ff; font-weight: 600; position: sticky; top: 0; z-index: 10; }
+      .col-stt { width: 60px; text-align: center; }
+      .col-check { flex: 1; display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+      .col-check label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-size: 1.05rem; }
+      .col-remove { width: 50px; text-align: center; }
+      .vote-row .remove-btn { background: none; border: none; font-size: 1.6rem; color: #94a3b8; cursor: pointer; padding: 0; }
+      .vote-row .remove-btn:hover { color: #dc2626; }
+      .invalid-row { background-color: #fee2e2; border-color: #f87171; }
+
+      .add-button-container { margin-top: 16px; display: flex; justify-content: center; }
+      #addVoteBtn { background: #10b981; padding: 16px 36px; border-radius: 60px; font-size: 1.2rem; }
+      #addVoteBtn:hover { background: #059669; }
+
+      .stats-box { background: #e6f0ff; border-radius: 40px; padding: 16px 24px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; font-size: 1.05rem; }
+      .stat-item { background: white; border-radius: 30px; padding: 10px 24px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+
+      .result-area { background: #f1f4f9; border-radius: 24px; padding: 24px; margin-top: 30px; }
+      table { width: 100%; border-collapse: collapse; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.02); font-size: 1.05rem; }
+      th { background: #2563eb; color: white; padding: 16px; }
+      td { padding: 14px; border-bottom: 1px solid #e2e8f0; text-align: center; }
+      .highlight { background: #dbeafe; font-weight: 600; }
+      .check-ok { color: #059669; font-weight: 600; font-size: 1.1rem; }
+      .check-fail { color: #dc2626; font-weight: 600; font-size: 1.1rem; }
+      .footer-note { margin-top: 20px; background: #f8fafc; padding: 16px; border-radius: 16px; font-size: 1rem; }
+      hr { border: none; border-top: 2px dashed #cbd5e1; margin: 24px 0; }
+      .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+      .badge { background: #e6f0ff; color: #1e4a7a; padding: 6px 14px; border-radius: 40px; font-size: 1rem; font-weight: 500; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🗳️ Công cụ kiểm phiếu thông minh</h1>
+      <div class="sub">
+        Tự động tạo tổ hợp (chỉ hoạt động khi số ứng viên ≤ 8) / Nhập từng phiếu
+        / Nhập tổ hợp thủ công
+      </div>
+
+      <!-- BƯỚC 1: THÔNG SỐ -->
+      <div class="step">
+        <h2><span>1</span> Thông tin cuộc bầu cử</h2>
+        <div class="form-row">
+          <div class="input-group">
+            <label>Số ứng viên (n)</label
+            ><input type="number" id="nInput" min="1" value="8" />
+          </div>
+          <div class="input-group">
+            <label>Số người được bầu (k)</label
+            ><input type="number" id="kInput" min="1" value="5" />
+          </div>
+          <button id="createBtn">▶ Bắt đầu</button>
+        </div>
+        <p class="badge" style="margin-top:12px;">
+          ✓ Phiếu hợp lệ: gạch từ <strong id="minGachDisplay">2</strong> đến
+          <strong id="maxGachDisplay">4</strong> người.
+          <span id="autoWarning" class="warning-badge" style="display:none;"
+            >Chế độ Tạo tổ hợp tự động tạm khóa do n > 8</span
+          >
+        </p>
+      </div>
+
+      <!-- BƯỚC 2: NHẬP TÊN -->
+      <div class="step" id="nameSection" style="display:none">
+        <h2><span>2</span> Nhập tên ứng viên</h2>
+        <div id="nameList" class="name-table"></div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <button class="secondary" id="resetNameBtn">
+            ⟲ Đặt lại tên mặc định
+          </button>
+          <button id="gotoVoteBtn">Tiếp → Chọn chế độ nhập</button>
+        </div>
+      </div>
+
+      <!-- BƯỚC 3: CHỌN CHẾ ĐỘ VÀ NHẬP LIỆU -->
+      <div class="step" id="voteSection" style="display:none">
+        <h2><span>3</span> Nhập dữ liệu</h2>
+        <div class="mode-switch">
+          <button id="modeAutoBtn" class="mode-btn">
+            ⚡ Auto (tổ hợp sẵn)
+          </button>
+          <button id="modeManualBtn" class="mode-btn">
+            ✍️ Manual (từng phiếu)
+          </button>
+          <button id="modeCustomBtn" class="mode-btn">
+            🛠️ Custom (tự nhập tổ hợp)
+          </button>
+        </div>
+
+        <!-- Auto mode -->
+        <div id="autoModePanel" style="display: none;">
+          <div class="combinations-panel">
+            <div class="combinations-header flex-between">
+              <span style="font-weight:500; font-size:1.1rem;"
+                >📌 Các tổ hợp gạch hợp lệ (nhập số phiếu)</span
+              >
+              <button id="regenerateCombosBtn" class="secondary">
+                ↻ Tạo lại tổ hợp
+              </button>
+            </div>
+            <div id="comboRowsContainer"></div>
+          </div>
+        </div>
+
+        <!-- Manual mode -->
+        <div id="manualModePanel" style="display: none;">
+          <div id="statsContainer" class="stats-box"></div>
+          <div id="votesContainer"></div>
+          <div class="add-button-container">
+            <button id="addVoteBtn">➕ Thêm phiếu (Enter)</button>
+          </div>
+          <p style="margin-top:12px; color:#4b5563;">
+            <i
+              >Dùng phím số 1..n để gạch/bỏ gạch trên phiếu cuối, Enter thêm
+              phiếu.</i
+            >
+          </p>
+        </div>
+
+        <!-- Custom mode -->
+        <div id="customModePanel" style="display: none;">
+          <div class="custom-panel">
+            <div class="flex-between" style="margin-bottom:16px;">
+              <span style="font-weight:500; font-size:1.1rem;"
+                >📝 Nhập tổ hợp và số phiếu (cách nhau dấu phẩy, VD:
+                1,2,5)</span
+              >
+              <button id="addCustomRowBtn" class="secondary">
+                + Thêm dòng
+              </button>
+            </div>
+            <div id="customRowsContainer"></div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px; display: flex; gap:12px; flex-wrap:wrap;">
+          <button id="calculateBtn">🧮 TÍNH KẾT QUẢ</button>
+          <button class="secondary" id="clearBtn">
+            🗑 Xóa dữ liệu hiện tại
+          </button>
+        </div>
+      </div>
+
+      <!-- BƯỚC 4: KẾT QUẢ -->
+      <div id="resultSection" class="result-area" style="display:none">
+        <h3 style="margin-top:0;">📊 Kết quả kiểm phiếu</h3>
+        <div id="resultTable"></div>
+        <div
+          id="statsSummary"
+          style="margin:16px 0; padding:12px; background:#e6f0ff; border-radius:16px; font-size:1.05rem;"
+        ></div>
+        <div id="checkResult" style="margin:16px 0;"></div>
+        <hr />
+        <div
+          id="detailDebug"
+          style="background:white; padding:16px; border-radius:16px; border:1px solid #e2e8f0;"
+        ></div>
+        <button class="secondary" id="backBtn" style="margin-top:20px;">
+          ← Quay lại nhập liệu
+        </button>
+      </div>
+
+      <!-- BẢN QUYỀN TÁC GIẢ (đặt cuối trang) -->
+      <div
+        style="text-align: center; margin-top: 40px; padding-top: 25px; border-top: 2px dashed #cbd5e1; color: #64748b; font-size: 1rem;"
+      >
+        <span>⚡</span> Bản quyền © 2026 thuộc về
+        <strong style="color: #2563eb;">NDH</strong>. Ứng dụng kiểm phiếu
+        <span>⚡</span>
+      </div>
+    </div>
+
+    <script>
+      (function() {
+          // State
+          let n = 5, k = 3;
+          let candidateNames = [];
+
+          // Auto mode
+          let autoCombos = [];
+
+          // Manual mode
+          let manualVotes = [];
+
+          // Custom mode
+          let customRows = [];
+
+          // Current mode
+          let currentMode = 'manual'; // mặc định là manual, vì auto có thể bị khóa
+
+          // DOM
+          const nInput = document.getElementById('nInput');
+          const kInput = document.getElementById('kInput');
+          const createBtn = document.getElementById('createBtn');
+          const nameSection = document.getElementById('nameSection');
+          const nameList = document.getElementById('nameList');
+          const resetNameBtn = document.getElementById('resetNameBtn');
+          const gotoVoteBtn = document.getElementById('gotoVoteBtn');
+          const voteSection = document.getElementById('voteSection');
+          const modeAutoBtn = document.getElementById('modeAutoBtn');
+          const modeManualBtn = document.getElementById('modeManualBtn');
+          const modeCustomBtn = document.getElementById('modeCustomBtn');
+          const autoModePanel = document.getElementById('autoModePanel');
+          const manualModePanel = document.getElementById('manualModePanel');
+          const customModePanel = document.getElementById('customModePanel');
+          const regenerateCombosBtn = document.getElementById('regenerateCombosBtn');
+          const comboRowsContainer = document.getElementById('comboRowsContainer');
+          const statsContainer = document.getElementById('statsContainer');
+          const votesContainer = document.getElementById('votesContainer');
+          const addVoteBtn = document.getElementById('addVoteBtn');
+          const customRowsContainer = document.getElementById('customRowsContainer');
+          const addCustomRowBtn = document.getElementById('addCustomRowBtn');
+          const calculateBtn = document.getElementById('calculateBtn');
+          const clearBtn = document.getElementById('clearBtn');
+          const resultSection = document.getElementById('resultSection');
+          const resultTable = document.getElementById('resultTable');
+          const statsSummary = document.getElementById('statsSummary');
+          const checkResult = document.getElementById('checkResult');
+          const detailDebug = document.getElementById('detailDebug');
+          const backBtn = document.getElementById('backBtn');
+          const minGachDisplay = document.getElementById('minGachDisplay');
+          const maxGachDisplay = document.getElementById('maxGachDisplay');
+          const autoWarning = document.getElementById('autoWarning');
+
+          // Hàm tiện ích
+          function validateN() {
+              let val = parseInt(nInput.value);
+              if (isNaN(val) || val < 1) val = 1;
+              nInput.value = val;
+              return val;
+          }
+          function validateK() {
+              let val = parseInt(kInput.value);
+              let maxN = parseInt(nInput.value) || 5;
+              if (isNaN(val) || val < 1) val = 1;
+              if (val > maxN) val = maxN;
+              kInput.value = val;
+              return val;
+          }
+          function updateGachRange() {
+              minGachDisplay.textContent = n - k;
+              maxGachDisplay.textContent = n - 1;
+          }
+
+          // Kiểm tra n có lớn hơn 8 không để khóa auto
+          function updateAutoModeAvailability() {
+              if (n > 8) {
+                  autoWarning.style.display = 'inline-block';
+                  // Nếu đang ở chế độ auto, chuyển sang manual
+                  if (currentMode === 'auto') {
+                      setMode('manual');
+                  }
+                  // Vô hiệu hóa nút auto
+                  modeAutoBtn.classList.add('disabled');
+                  modeAutoBtn.style.pointerEvents = 'none';
+                  modeAutoBtn.style.opacity = '0.5';
+              } else {
+                  autoWarning.style.display = 'none';
+                  modeAutoBtn.classList.remove('disabled');
+                  modeAutoBtn.style.pointerEvents = 'auto';
+                  modeAutoBtn.style.opacity = '1';
+              }
+          }
+
+          function defaultNames(n) {
+              return Array.from({ length: n }, (_, i) => `Ứng viên ${i+1}`);
+          }
+
+          function renderNameInputs() {
+              let html = '';
+              for (let i=0; i<n; i++) {
+                  let val = candidateNames[i] || `Ứng viên ${i+1}`;
+                  html += `<div class="name-item"><span class="index">${i+1}</span><input type="text" id="name_${i}" value="${val.replace(/"/g, '&quot;')}"></div>`;
+              }
+              nameList.innerHTML = html;
+          }
+          function readNames() {
+              let arr = [];
+              for (let i=0; i<n; i++) {
+                  let inp = document.getElementById(`name_${i}`);
+                  arr.push(inp ? inp.value.trim() || `Ứng viên ${i+1}` : candidateNames[i] || `Ứng viên ${i+1}`);
+              }
+              candidateNames = arr;
+          }
+
+          // --- Auto mode helpers ---
+          function combinations(arr, m) {
+              if (m === 0) return [[]];
+              if (arr.length < m) return [];
+              const result = [];
+              const helper = (start, chosen) => {
+                  if (chosen.length === m) { result.push([...chosen]); return; }
+                  for (let i = start; i < arr.length; i++) {
+                      chosen.push(arr[i]);
+                      helper(i+1, chosen);
+                      chosen.pop();
+                  }
+              };
+              helper(0, []);
+              return result;
+          }
+          function generateValidCombos(n, k) {
+              const minGach = n - k, maxGach = n - 1;
+              const numbers = Array.from({ length: n }, (_, i) => i+1);
+              let all = [];
+              for (let m = minGach; m <= maxGach; m++) {
+                  all.push(...combinations(numbers, m));
+              }
+              all.sort((a,b) => {
+                  if (a.length !== b.length) return a.length - b.length;
+                  for (let i=0; i<a.length; i++) if (a[i] !== b[i]) return a[i] - b[i];
+                  return 0;
+              });
+              return all.map(g => ({ gach: g, sophieu: 0 }));
+          }
+          function renderAuto() {
+              if (!comboRowsContainer) return;
+              let html = '';
+              autoCombos.forEach((c, idx) => {
+                  html += `<div class="combo-row" data-index="${idx}"><div class="gach-display">Gạch [${c.gach.join(', ')}]</div><input type="number" class="sophieu-input" value="${c.sophieu}" min="0" step="1" placeholder="Số phiếu"></div>`;
+              });
+              comboRowsContainer.innerHTML = html;
+              document.querySelectorAll('#autoModePanel .combo-row').forEach(row => {
+                  const idx = row.dataset.index;
+                  const inp = row.querySelector('.sophieu-input');
+                  inp.addEventListener('input', () => {
+                      if (idx < autoCombos.length) {
+                          let val = parseInt(inp.value);
+                          autoCombos[idx].sophieu = isNaN(val) ? 0 : Math.max(0, val);
+                      }
+                  });
+              });
+          }
+
+          // --- Manual mode helpers ---
+          function computeStats() {
+              let stats = new Array(n+1).fill(0);
+              manualVotes.forEach(v => { let cnt = v.filter(Boolean).length; if (cnt>=0 && cnt<=n) stats[cnt]++; });
+              return stats;
+          }
+          function renderManualStats() {
+              let stats = computeStats();
+              let min = n - k, max = n - 1;
+              let html = '';
+              for (let i=min; i<=max; i++) {
+                  html += `<div class="stat-item">Gạch <strong>${i}</strong>: <span style="color:#2563eb; font-weight:700;">${stats[i]}</span></div>`;
+              }
+              statsContainer.innerHTML = html || '<div class="stat-item">Chưa có phiếu hợp lệ</div>';
+          }
+          function renderManual() {
+              if (!votesContainer) return;
+              let min = n - k, max = n - 1;
+              let html = `<div class="votes-header"><div class="col-stt">STT</div><div class="col-check">Các ứng viên BỊ GẠCH</div><div class="col-remove">Xóa</div></div>`;
+              manualVotes.forEach((vote, idx) => {
+                  let cnt = vote.filter(Boolean).length;
+                  let isValid = (cnt >= min && cnt <= max);
+                  html += `<div class="${isValid ? 'vote-row' : 'vote-row invalid-row'}" data-index="${idx}">`;
+                  html += `<div class="col-stt">${idx+1}</div><div class="col-check">`;
+                  for (let i=0; i<n; i++) {
+                      html += `<label><input type="checkbox" class="vote-checkbox" data-vote="${idx}" data-cand="${i}" ${vote[i]?'checked':''}> ${i+1}</label>`;
+                  }
+                  html += `</div><div class="col-remove"><button class="remove-btn" data-idx="${idx}">✕</button></div></div>`;
+              });
+              votesContainer.innerHTML = html;
+
+              document.querySelectorAll('#manualModePanel .vote-checkbox').forEach(cb => {
+                  cb.addEventListener('change', function() {
+                      let vIdx = parseInt(this.dataset.vote);
+                      let cIdx = parseInt(this.dataset.cand);
+                      if (manualVotes[vIdx]) { manualVotes[vIdx][cIdx] = this.checked; renderManual(); }
+                  });
+              });
+              document.querySelectorAll('#manualModePanel .remove-btn').forEach(btn => {
+                  btn.addEventListener('click', function() {
+                      let idx = parseInt(this.dataset.idx);
+                      if (!isNaN(idx) && idx>=0 && idx<manualVotes.length) { manualVotes.splice(idx,1); renderManual(); }
+                  });
+              });
+              renderManualStats();
+          }
+          function addManualVote() {
+              manualVotes.push(new Array(n).fill(false));
+              renderManual();
+              setTimeout(() => {
+                  let rows = document.querySelectorAll('#manualModePanel .vote-row');
+                  if (rows.length) rows[rows.length-1].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              }, 50);
+          }
+
+          // --- Custom mode helpers ---
+          function validateCustomCombo(comboStr) {
+              if (!comboStr.trim()) return { valid: false, gach: [] };
+              let parts = comboStr.split(',').map(s => s.trim()).filter(s => s !== '');
+              let numbers = [];
+              for (let p of parts) {
+                  let num = parseInt(p);
+                  if (isNaN(num)) return { valid: false, gach: [] };
+                  numbers.push(num);
+              }
+              let unique = [...new Set(numbers)];
+              if (unique.length !== numbers.length) return { valid: false, gach: [] };
+              for (let num of unique) {
+                  if (num < 1 || num > n) return { valid: false, gach: [] };
+              }
+              let gachCount = unique.length;
+              let minGach = n - k, maxGach = n - 1;
+              if (gachCount < minGach || gachCount > maxGach) return { valid: false, gach: unique.sort((a,b)=>a-b) };
+              return { valid: true, gach: unique.sort((a,b)=>a-b) };
+          }
+          function renderCustom() {
+              if (!customRowsContainer) return;
+              let html = '';
+              customRows.forEach((row, idx) => {
+                  let validClass = row.valid ? '' : 'invalid';
+                  html += `<div class="custom-row ${validClass}" data-index="${idx}">`;
+                  html += `<input type="text" class="combo-input" value="${row.comboStr.replace(/"/g, '&quot;')}" placeholder="VD: 1,2,5">`;
+                  html += `<input type="number" class="sophieu-input" value="${row.sophieu}" min="0" step="1" placeholder="Số phiếu">`;
+                  html += `<button class="remove-btn" style="background:none; border:none; font-size:1.6rem; color:#94a3b8; cursor:pointer;">✕</button>`;
+                  html += `</div>`;
+              });
+              customRowsContainer.innerHTML = html;
+
+              document.querySelectorAll('#customModePanel .custom-row').forEach((row, idx) => {
+                  const comboInput = row.querySelector('.combo-input');
+                  const sophieuInput = row.querySelector('.sophieu-input');
+                  const removeBtn = row.querySelector('.remove-btn');
+
+                  comboInput.addEventListener('input', () => {
+                      if (idx < customRows.length) {
+                          customRows[idx].comboStr = comboInput.value;
+                          let validation = validateCustomCombo(comboInput.value);
+                          customRows[idx].valid = validation.valid;
+                          customRows[idx].parsedGach = validation.valid ? validation.gach : [];
+                          if (validation.valid) row.classList.remove('invalid');
+                          else row.classList.add('invalid');
+                      }
+                  });
+                  sophieuInput.addEventListener('input', () => {
+                      if (idx < customRows.length) {
+                          let val = parseInt(sophieuInput.value);
+                          customRows[idx].sophieu = isNaN(val) ? 0 : Math.max(0, val);
+                      }
+                  });
+                  removeBtn.addEventListener('click', () => {
+                      customRows.splice(idx, 1);
+                      renderCustom();
+                  });
+              });
+          }
+          function addCustomRow() {
+              customRows.push({ comboStr: '', sophieu: 0, valid: false, parsedGach: [] });
+              renderCustom();
+          }
+
+          // --- Chuyển chế độ (có kiểm tra khả dụng của auto) ---
+          function setMode(mode) {
+              if (mode === 'auto' && n > 8) {
+                  alert('Chế độ Auto không khả dụng khi số ứng viên lớn hơn 8. Vui lòng chọn Manual hoặc Custom.');
+                  return;
+              }
+              currentMode = mode;
+              modeAutoBtn.classList.remove('active');
+              modeManualBtn.classList.remove('active');
+              modeCustomBtn.classList.remove('active');
+              if (mode === 'auto') {
+                  modeAutoBtn.classList.add('active');
+                  autoModePanel.style.display = 'block';
+                  manualModePanel.style.display = 'none';
+                  customModePanel.style.display = 'none';
+                  if (autoCombos.length === 0) autoCombos = generateValidCombos(n, k);
+                  renderAuto();
+              } else if (mode === 'manual') {
+                  modeManualBtn.classList.add('active');
+                  autoModePanel.style.display = 'none';
+                  manualModePanel.style.display = 'block';
+                  customModePanel.style.display = 'none';
+                  if (manualVotes.length === 0) addManualVote();
+                  else renderManual();
+              } else {
+                  modeCustomBtn.classList.add('active');
+                  autoModePanel.style.display = 'none';
+                  manualModePanel.style.display = 'none';
+                  customModePanel.style.display = 'block';
+                  if (customRows.length === 0) addCustomRow();
+                  else renderCustom();
+              }
+          }
+
+          // --- Tính kết quả ---
+          function calculate() {
+              readNames();
+
+              let counts = new Array(n).fill(0);
+              let totalValidFromCombos = 0;
+              let totalVotesInput = 0;
+              let validVotes = 0;
+              let statsByGach = new Array(n+1).fill(0);
+
+              if (currentMode === 'auto') {
+                  document.querySelectorAll('#autoModePanel .combo-row').forEach((row, idx) => {
+                      if (idx < autoCombos.length) {
+                          let inp = row.querySelector('.sophieu-input');
+                          let val = parseInt(inp.value);
+                          autoCombos[idx].sophieu = isNaN(val) ? 0 : Math.max(0, val);
+                      }
+                  });
+                  autoCombos.forEach(c => {
+                      let soPhieu = c.sophieu;
+                      if (soPhieu > 0) {
+                          totalVotesInput += soPhieu;
+                          validVotes += soPhieu;
+                          let gachCount = c.gach.length;
+                          statsByGach[gachCount] += soPhieu;
+                          totalValidFromCombos += soPhieu * (n - gachCount);
+                          let gachSet = new Set(c.gach);
+                          for (let i=1; i<=n; i++) {
+                              if (!gachSet.has(i)) counts[i-1] += soPhieu;
+                          }
+                      }
+                  });
+              } else if (currentMode === 'manual') {
+                  manualVotes.forEach(v => {
+                      totalVotesInput++;
+                      let gachCount = v.filter(Boolean).length;
+                      statsByGach[gachCount]++;
+                      if (gachCount >= n-k && gachCount <= n-1) {
+                          validVotes++;
+                          totalValidFromCombos += (n - gachCount);
+                          for (let i=0; i<n; i++) {
+                              if (!v[i]) counts[i]++;
+                          }
+                      }
+                  });
+              } else { // custom
+                  document.querySelectorAll('#customModePanel .custom-row').forEach((row, idx) => {
+                      if (idx < customRows.length) {
+                          let comboInput = row.querySelector('.combo-input');
+                          let sophieuInput = row.querySelector('.sophieu-input');
+                          customRows[idx].comboStr = comboInput.value;
+                          let val = parseInt(sophieuInput.value);
+                          customRows[idx].sophieu = isNaN(val) ? 0 : Math.max(0, val);
+                          let validation = validateCustomCombo(comboInput.value);
+                          customRows[idx].valid = validation.valid;
+                          customRows[idx].parsedGach = validation.valid ? validation.gach : [];
+                      }
+                  });
+
+                  customRows.forEach(row => {
+                      let soPhieu = row.sophieu;
+                      if (soPhieu > 0) {
+                          totalVotesInput += soPhieu;
+                          if (row.valid) {
+                              let gach = row.parsedGach;
+                              let gachCount = gach.length;
+                              validVotes += soPhieu;
+                              statsByGach[gachCount] += soPhieu;
+                              totalValidFromCombos += soPhieu * (n - gachCount);
+                              let gachSet = new Set(gach);
+                              for (let i=1; i<=n; i++) {
+                                  if (!gachSet.has(i)) counts[i-1] += soPhieu;
+                              }
+                          }
+                      }
+                  });
+              }
+
+              let totalFromCounts = counts.reduce((a,b) => a + b, 0);
+              let invalidVotes = totalVotesInput - validVotes;
+
+              let tableHtml = `<table><tr><th>Ứng viên</th><th>Số phiếu</th><th>% (trên tổng phiếu hợp lệ)</th></tr>`;
+              for (let i=0; i<n; i++) {
+                  let percent = validVotes > 0 ? (counts[i] / validVotes * 100).toFixed(2) : '0.00';
+                  tableHtml += `<tr><td>${candidateNames[i]}</td><td class="highlight">${counts[i]}</td><td>${percent}%</td></tr>`;
+              }
+              tableHtml += `</table>`;
+              resultTable.innerHTML = tableHtml;
+
+              statsSummary.innerHTML = `
+                  <strong>Tổng số phiếu đã nhập:</strong> ${totalVotesInput} &nbsp; | &nbsp;
+                  <strong>Số phiếu hợp lệ:</strong> ${validVotes} &nbsp; | &nbsp;
+                  <strong>Số phiếu không hợp lệ:</strong> ${invalidVotes}
+              `;
+
+              let isValid = (totalFromCounts === totalValidFromCombos);
+              checkResult.innerHTML = isValid ?
+                  `<span class="check-ok">✅ Đối chiếu chính xác: Tổng lượt bầu (cộng dồn) = ${totalValidFromCombos}</span>` :
+                  `<span class="check-fail">❌ Sai lệch! Tổng lượt bầu từ ứng viên (${totalFromCounts}) khác tổng lượt bầu theo công thức (${totalValidFromCombos}).</span>`;
+
+              let debugHtml = `<strong>📊 Thống kê phiếu theo số gạch:</strong><br>`;
+              for (let i = n - k; i <= n - 1; i++) {
+                  debugHtml += `Gạch ${i}: ${statsByGach[i]} phiếu<br>`;
+              }
+              debugHtml += `<br><small>(Công thức tổng lượt bầu: Σ (phiếu hợp lệ × (n - số gạch)) = ${totalValidFromCombos})</small>`;
+              detailDebug.innerHTML = debugHtml;
+
+              resultSection.style.display = 'block';
+              voteSection.style.display = 'none';
+          }
+
+          function clearCurrentMode() {
+              if (currentMode === 'auto') {
+                  autoCombos = generateValidCombos(n, k);
+                  renderAuto();
+              } else if (currentMode === 'manual') {
+                  manualVotes = [];
+                  renderManual();
+              } else {
+                  customRows = [];
+                  renderCustom();
+              }
+          }
+
+          // --- Phím tắt (chỉ manual) ---
+          function handleKeyDown(e) {
+              if (currentMode !== 'manual' || voteSection.style.display !== 'block') return;
+              const active = document.activeElement;
+              if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.tagName === 'SELECT' || active.tagName === 'BUTTON')) return;
+
+              if (e.key >= '1' && e.key <= '9') {
+                  let num = parseInt(e.key);
+                  if (num >= 1 && num <= n) {
+                      e.preventDefault();
+                      if (manualVotes.length === 0) addManualVote();
+                      let last = manualVotes.length - 1;
+                      if (last >= 0) {
+                          manualVotes[last][num-1] = !manualVotes[last][num-1];
+                          renderManual();
+                      }
+                  }
+              }
+              if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addManualVote();
+              }
+          }
+
+          // --- Sự kiện ---
+          createBtn.addEventListener('click', ()=>{
+              n = validateN(); k = validateK();
+              updateGachRange();
+              updateAutoModeAvailability();
+              candidateNames = defaultNames(n);
+              renderNameInputs();
+              nameSection.style.display = 'block';
+              voteSection.style.display = 'none';
+              resultSection.style.display = 'none';
+              autoCombos = generateValidCombos(n, k);
+              manualVotes = [];
+              customRows = [];
+              // Mặc định chuyển về manual nếu auto bị khóa
+              if (n > 8) setMode('manual');
+              else setMode('auto'); // ưu tiên auto nếu khả dụng
+          });
+
+          resetNameBtn.addEventListener('click', ()=>{
+              candidateNames = defaultNames(n);
+              renderNameInputs();
+          });
+
+          gotoVoteBtn.addEventListener('click', ()=>{
+              readNames();
+              setMode(currentMode);
+              voteSection.style.display = 'block';
+              resultSection.style.display = 'none';
+          });
+
+          modeAutoBtn.addEventListener('click', ()=> setMode('auto'));
+          modeManualBtn.addEventListener('click', ()=> setMode('manual'));
+          modeCustomBtn.addEventListener('click', ()=> setMode('custom'));
+
+          regenerateCombosBtn.addEventListener('click', ()=>{
+              autoCombos = generateValidCombos(n, k);
+              renderAuto();
+          });
+
+          addVoteBtn.addEventListener('click', addManualVote);
+          addCustomRowBtn.addEventListener('click', addCustomRow);
+
+          clearBtn.addEventListener('click', clearCurrentMode);
+
+          calculateBtn.addEventListener('click', calculate);
+          backBtn.addEventListener('click', ()=>{
+              resultSection.style.display = 'none';
+              voteSection.style.display = 'block';
+          });
+
+          nInput.addEventListener('input', ()=>{
+              n = validateN(); validateK(); updateGachRange();
+              updateAutoModeAvailability();
+              if (voteSection.style.display === 'block') {
+                  if (currentMode === 'manual') {
+                      manualVotes = [];
+                      renderManual();
+                  } else if (currentMode === 'custom') {
+                      customRows.forEach(row => {
+                          let validation = validateCustomCombo(row.comboStr);
+                          row.valid = validation.valid;
+                          row.parsedGach = validation.valid ? validation.gach : [];
+                      });
+                      renderCustom();
+                  } else if (currentMode === 'auto') {
+                      // Nếu đang auto mà n > 8, tự động chuyển sang manual
+                      if (n > 8) {
+                          alert('Chế độ Auto bị vô hiệu do n > 8. Chuyển sang chế độ Manual.');
+                          setMode('manual');
+                      } else {
+                          // Có thể giữ nguyên, nhưng cần cập nhật danh sách tổ hợp
+                          autoCombos = generateValidCombos(n, k);
+                          renderAuto();
+                      }
+                  }
+              }
+          });
+
+          kInput.addEventListener('input', ()=>{
+              k = validateK(); updateGachRange();
+              if (voteSection.style.display === 'block') {
+                  if (currentMode === 'manual') {
+                      renderManual();
+                  } else if (currentMode === 'custom') {
+                      customRows.forEach(row => {
+                          let validation = validateCustomCombo(row.comboStr);
+                          row.valid = validation.valid;
+                          row.parsedGach = validation.valid ? validation.gach : [];
+                      });
+                      renderCustom();
+                  } else if (currentMode === 'auto') {
+                      autoCombos = generateValidCombos(n, k);
+                      renderAuto();
+                  }
+              }
+          });
+
+          document.addEventListener('keydown', handleKeyDown);
+
+          // Khởi tạo
+          (function init() {
+              n = validateN(); k = validateK(); updateGachRange();
+              updateAutoModeAvailability();
+              candidateNames = defaultNames(n);
+              autoCombos = generateValidCombos(n, k);
+              // Mặc định chọn chế độ phù hợp
+              if (n > 8) currentMode = 'manual';
+              else currentMode = 'auto';
+          })();
+      })();
+    </script>
+  </body>
+</html>
+
+
+  <script>
+    
+  </script>
+</body>
+</html>
